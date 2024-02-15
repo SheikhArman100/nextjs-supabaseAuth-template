@@ -3,6 +3,7 @@ import "./globals.css";
 import Provider from "@/lib/Providers/Provider.js";
 import Navbar from "@/components/Navbar.js";
 import { Toaster } from "@/components/ui/toaster.jsx";
+import Link from "next/link.js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,9 +19,20 @@ export default function RootLayout({ children }) {
         <Provider>
           <main className="flex min-h-screen w-full max-w-[1600px] relative mx-auto flex-col">
             <Navbar />
+            <ul className=" flex items-center justify-center mt-4 gap-x-8">
+              <li>
+                <Link href="/public">Public</Link>
+              </li>
+              <li>
+                <Link href="/client">Client</Link>
+              </li>
+              <li>
+                <Link href="/server">Server</Link>
+              </li>
+            </ul>
             {children}
           </main>
-          <Toaster/>
+          <Toaster />
         </Provider>
       </body>
     </html>

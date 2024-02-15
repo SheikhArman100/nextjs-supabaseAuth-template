@@ -1,4 +1,5 @@
 "use client";
+import Spinner from "@/components/Spinner.js";
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { Label } from "@/components/ui/label.jsx";
@@ -7,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast.js";
 import SupabaseBrowser from "@/lib/supabase/browser.js";
 import { signupSchema } from "@/lib/zod_schema.js";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation.js";
 
@@ -19,8 +20,10 @@ const FormSignup = () => {
     password: true,
     passwordConfirmation: true,
   });
-  const router=useRouter()
-  const {toast}=useToast()
+  const router = useRouter();
+  const { toast } = useToast();
+
+  //react-hook-form setup
   const {
     register,
     handleSubmit,
@@ -30,40 +33,55 @@ const FormSignup = () => {
     resolver: zodResolver(signupSchema),
   });
 
-  const handleSignup = async(data) => {
-    const supabase=SupabaseBrowser()
+  const supabase = SupabaseBrowser();
+  //mutation for signup
+  const signupMutation = useMutation({
+    mutationFn: async (data) => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const result = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      return result;
+    },
+  });
 
-    const {data:existingUser}= await supabase.from("profiles").select("email").eq("email",data.email).single()
-    if(existingUser){
+  const handleSignup = async (data) => {
+    const { data: existingUser } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("email", data.email)
+      .single();
+    if (existingUser) {
       toast({
-        title:"Email is already registered",
-        description:"use another email",
-        action: (<ToastAction altText="duplicate email" >Undo</ToastAction>),
-      })
+        title: "Email is already registered",
+        description: "use another email",
+        action: <ToastAction altText="duplicate email">Undo</ToastAction>,
+      });
       return;
     }
-    
-    const result=await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      // options:{
-      //   emailRedirectTo:Location.origin + "/auth/confirm"
-      // } 
-    })
-    
-    if(result?.error){
-      toast({
-        title: result.error.message,
-        action:( <ToastAction altText="error email" >Undo</ToastAction>),
-      });
-    }else{
-      router.push("/")
-      toast({
-        title: "Confirmation email has been sent",
-        description:"verify your email first",
-        action: (<ToastAction altText="confirm email" >Undo</ToastAction>),
-      });
-    }
+    signupMutation.mutate(
+      {
+        email: data.email,
+        password: data.password,
+      },
+      {
+        onSuccess: (data) => {
+          router.push("/");
+          toast({
+            title: "Confirmation email has been sent",
+            description: "verify your email first",
+            action: <ToastAction altText="confirm email">Undo</ToastAction>,
+          });
+        },
+        onError: (data) => {
+          toast({
+            title: result.error.message,
+            action: <ToastAction altText="error email">Undo</ToastAction>,
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -141,14 +159,19 @@ const FormSignup = () => {
             )}
           </button>
         </div>
-        
+
         {errors.passwordConfirmation?.message && (
           <p className="text-xs font-semibold text-red-700 mt-1">
             *{errors.passwordConfirmation?.message}
           </p>
         )}
       </div>
-      <Button className="grid w-full items-center">Register</Button>
+      <Button className="grid w-full items-center">
+      {signupMutation.isPending ? (
+          <Spinner className="h-4 w-4" />
+        ) : (
+          <p>Register</p>
+        )}</Button>
     </form>
   );
 };

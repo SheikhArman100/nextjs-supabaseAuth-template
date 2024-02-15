@@ -1,24 +1,27 @@
 "use client";
+import Spinner from "@/components/Spinner.js";
+import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { Label } from "@/components/ui/label.jsx";
-import { signinSchema } from "@/lib/zod_schema.js";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button.jsx";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import SupabaseBrowser from "@/lib/supabase/browser.js";
-import { useToast } from "@/components/ui/use-toast.js";
 import { ToastAction } from "@/components/ui/toast.jsx";
+import { useToast } from "@/components/ui/use-toast.js";
+import SupabaseBrowser from "@/lib/supabase/browser.js";
+import { signinSchema } from "@/lib/zod_schema.js";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation.js";
-import Spinner from "@/components/Spinner.js";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-const FormSignin = () => {
+const FormSignin = ({ next }) => {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  // const searchParams=useSearchParams()
+  // const next=searchParams.get("next")|"/"
   const [isHidden, setIsHidden] = useState(true);
+  //react-hook-form setup
   const {
     register,
     handleSubmit,
@@ -27,7 +30,7 @@ const FormSignin = () => {
   } = useForm({
     resolver: zodResolver(signinSchema),
   });
-
+  //mutation for signin
   const signinMutation = useMutation({
     mutationFn: async (data) => {
       const supabase = SupabaseBrowser();
@@ -57,7 +60,7 @@ const FormSignin = () => {
             });
           }
           if (data.data.session?.user) {
-            router.push("/");
+            router.push(next);
 
             toast({
               title: "Successfully Sign in",
@@ -114,11 +117,11 @@ const FormSignin = () => {
         )}
       </div>
       <Button className="grid w-full  items-center">
-      {signinMutation.isPending ? (
-            <Spinner className="h-4 w-4"/>
-          ) : (
-            <p>Sign in</p>
-          )}
+        {signinMutation.isPending ? (
+          <Spinner className="h-4 w-4" />
+        ) : (
+          <p>Sign in</p>
+        )}
       </Button>
     </form>
   );

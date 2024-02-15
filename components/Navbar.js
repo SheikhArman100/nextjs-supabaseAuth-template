@@ -12,6 +12,7 @@ const Navbar = () => {
   return (
     <div className="w-full h-16  border-b border-b-border flex  items-center justify-between px-8 lg:px-[2rem] xl:px-[4rem]">
       <Link href="/" className="text-3xl font-bold">LOGO</Link>
+      
       <div className="flex items-center  gap-x-3">
         <ThemeButton />
 

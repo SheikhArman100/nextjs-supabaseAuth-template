@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import FormSignup from "./FormSignup.js";
 import {
   Card,
@@ -12,8 +12,16 @@ import GoogleButton from "@/components/GoogleButton.js";
 import FacebookButton from "@/components/FacebookButton.js";
 import GithubButton from "@/components/GithubButton.js";
 import Link from "next/link.js";
+import SupabaseServer from "@/lib/supabase/server.js";
+import { redirect } from "next/navigation.js";
 
-const Signup = () => {
+const Signup = async({searchParams}) => {
+  const next=searchParams.next ?? "/"
+  const supabase=SupabaseServer()
+  const { data } = await (await supabase).auth.getUser()
+  if (data?.user) {
+    redirect('/')
+  }
   return (
     <section className="w-full flex-1 flex items-center justify-center px-8 lg:px-[2rem] xl:px-[4rem]">
       <Card className="w-full max-w-md">
@@ -25,7 +33,7 @@ const Signup = () => {
         </CardHeader>
         <CardContent className="grid gap-4">
           {/* <SignInForm /> */}
-          <FormSignup/>
+          <FormSignup next={next}/>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -38,9 +46,11 @@ const Signup = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4">
+          <Suspense fallback={<div>Loading..</div> }>
             <GoogleButton />
             <FacebookButton />
             <GithubButton />
+            </Suspense>
           </div>
         </CardContent>
         <CardFooter className="flex flex-wrap items-center justify-center gap-2">
@@ -50,7 +60,7 @@ const Signup = () => {
             </span>
             <Link
               aria-label="Sign in"
-              href="/auth/signin"
+              href={`/auth/signin?next=${next}`}
               className="text-primary underline-offset-4 transition-colors hover:underline"
             >
               Sign in

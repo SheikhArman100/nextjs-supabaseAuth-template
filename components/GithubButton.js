@@ -1,15 +1,18 @@
 "use client"
 import { Button } from "@/components/ui/button.jsx";
 import SupabaseBrowser from "@/lib/supabase/browser.js";
+import { useSearchParams } from "next/navigation.js";
 import React from "react";
 
 const GithubButton = () => {
+  const searchParams=useSearchParams()
+  const next=searchParams.get("next")||""
   const handleAuthWithGithub=()=>{
     const supabase=SupabaseBrowser()
     supabase.auth.signInWithOAuth({
       provider:"github",
       options:{
-        redirectTo:Location.origin + "/auth/callback"
+        redirectTo:location.origin + "/auth/callback?next=" + next
       }
     })
   }

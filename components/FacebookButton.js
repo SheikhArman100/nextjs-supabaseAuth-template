@@ -1,19 +1,26 @@
-"use client"
+"use client";
 import { Button } from "@/components/ui/button.jsx";
 import SupabaseBrowser from "@/lib/supabase/browser.js";
+import { useSearchParams } from "next/navigation.js";
 
 const FacebookButton = () => {
-  const handleAuthWithFacebook=()=>{
-    const supabase=SupabaseBrowser()
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "";
+  const handleAuthWithFacebook = () => {
+    const supabase = SupabaseBrowser();
     supabase.auth.signInWithOAuth({
-      provider:"facebook",
-      options:{
-        redirectTo:Location.origin + "/auth/callback"
-      }
-    })
-  }
+      provider: "facebook",
+      options: {
+        redirectTo: location.origin + "/auth/callback?next=" + next
+      },
+    });
+  };
   return (
-    <Button variant="outline" className="w-full bg-background sm:w-auto" onClick={handleAuthWithFacebook}>
+    <Button
+      variant="outline"
+      className="w-full bg-background sm:w-auto"
+      onClick={handleAuthWithFacebook}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 320 512"
