@@ -69,7 +69,7 @@ const SignIn = async({searchParams}) => {
           </div>
           <Link
             aria-label="Reset password"
-            href="/auth/forget-password"
+            href={`/auth/forget-password?next=${next}`}
             className="text-sm text-primary underline-offset-4 transition-colors hover:underline"
           >
             Forget password
