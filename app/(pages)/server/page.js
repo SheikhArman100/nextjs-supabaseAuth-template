@@ -1,10 +1,5 @@
-import SupabaseServer from "@/lib/supabase/server.js";
+const Server =  () => {
+  return <div>ServerPage</div>
+}
 
-const Server = async () => {
-  const supabase = SupabaseServer();
-  
-
-  return <div>ServerPage</div>;
-};
-
-export default Server;
+export default Server
